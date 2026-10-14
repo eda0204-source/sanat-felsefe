@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelişmiş Yorum Filtreleme ve Engelleme Sistemi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2, h3 { color: #2c3e50; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #alertBox {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-weight: 500;
+        }
+        .alert-error {
+            background-color: #ffeaa7;
+            color: #d63031;
+            border: 1px solid #fab1a0;
+        }
+        .alert-success {
+            background-color: #55efc4;
+            color: #00b894;
+            border: 1px solid #00cec9;
+        }
+        .comment-card {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 12px 15px;
+            margin-top: 12px;
+            border-radius: 4px;
+        }
+        .comment-user {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        .comment-text {
+            margin-top: 6px;
+            color: #555;
+            word-break: break-word;
+        }
+        .banned-section {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Yorum Yapma Paneli</h2>
+    
+    <div class="form-group">
+        <label for="username">Kullanıcı Adı:</label>
+        <input type="text" id="username" placeholder="Örn: ahmet123">
+    </div>
+    
+    <div class="form-group">
+        <label for="commentText">Yorumunuz:</label>
+        <textarea id="commentText" rows="4" placeholder="Düşüncelerinizi buraya yazın..."></textarea>
+    </div>
+    
+    <button onclick="handleCommentSubmit()">Yorumu Gönder</button>
+
+    <div id="alertBox"></div>
+
+    <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+
+    <h3>Yayınlanan Yorumlar</h3>
+    <div id="commentsList">
+        <!-- Yorumlar buraya dinamik eklenecek -->
+    </div>
+
+    <div class="banned-section" id="bannedListInfo">
+        Engellenen Kullanıcılar: Yok
+    </div>
+</div>
+
+<script>
+    // 1. Kapsamlı Örnek Argo/Küfür Kara Listesi (İstediğiniz kadar kelime ekleyebilirsiniz)
+    const badWords = [
+        "küfür1", "argo1", "aptal", "salak", "mal", "gerizekalı", 
+        "nefret", "pislik", "hain", "orospu", "amk", "aq", "sik", "anan", 
+        "yarrak", "pezevenk", "kahpe", "iftira"
+    ];
+
+    // LocalStorage verilerini yükle
+    let bannedUsers = JSON.parse(localStorage.getItem("bannedUsers")) || [];
+    let comments = JSON.parse(localStorage.getItem("comments")) || [];
+
+    // Sayfa açıldığında listeleri güncelle
+    renderComments();
+    updateBannedInfo();
+
+    function showAlert(message, type) {
+        const alertBox = document.getElementById("alertBox");
+        alertBox.style.display = "block";
+        alertBox.className = type === "error" ? "alert-error" : "alert-success";
+        alertBox.innerText = message;
+    }
+
+    function handleCommentSubmit() {
+        const usernameInput = document.getElementById("username");
+        const commentInput = document.getElementById("commentText");
+
+        const username = usernameInput.value.trim();
+        const text = commentInput.value.trim();
+
+        if (!username || !text) {
+            showAlert("Lütfen kullanıcı adı ve yorum alanlarını boş bırakmayın.", "error");
+            return;
+        }
+
+        // 2. Kullanıcı engelli mi kontrol et
+        if (bannedUsers.includes(username)) {
+            showAlert("Bu kullanıcı adı daha önce uygunsuz içerik paylaştığı için engellenmiştir. Yorum yapamazsınız.", "error");
+            return;
+        }
+
+        // 3. Gelişmiş Filtreleme (Türkçe harf duyarlılığı + Boşluk/Nokta aldatmacalarını engelleme)
+        // Türkçe karakterleri doğru küçültmek için toLocaleLowerCase('tr-TR') kullanılır.
+        const normalizedText = text.toLocaleLowerCase('tr-TR')
+                                   .replace(/[\s\.\-_,\*]/g, ''); // Boşluk, nokta, tire ve yıldızları temizle (örn: k.ü.f.ü.r -> küfür)
+
+        let containsBadWord = false;
+
+        for (let word of badWords) {
+            const normalizedBadWord = word.toLocaleLowerCase('tr-TR').replace(/[\s\.\-_,\*]/g, '');
+            if (normalizedText.includes(normalizedBadWord)) {
+                containsBadWord = true;
+                break;
+            }
+        }
+
+        if (containsBadWord) {
+            // Uygunsuz kelime yakalandı -> Kullanıcıyı engelle ve yorumu reddet
+            if (!bannedUsers.includes(username)) {
+                bannedUsers.push(username);
+                localStorage.setItem("bannedUsers", JSON.stringify(bannedUsers));
+            }
+
+            showAlert("Uygunsuz içerik tespit edildi! Yorumunuz silindi ve '" + username + "' adlı hesabın yorum yapması engellendi.", "error");
+            
+            commentInput.value = "";
+            updateBannedInfo();
+            return;
+        }
+
+        // 4. Her şey temizse yorumu kaydet ve ekranda göster
+        comments.push({ username, text });
+        localStorage.setItem("comments", JSON.stringify(comments));
+
+        showAlert("Yorumunuz başarıyla yayınlandı.", "success");
+        commentInput.value = "";
+        renderComments();
+    }
+
+    function renderComments() {
+        const listDiv = document.getElementById("commentsList");
+        listDiv.innerHTML = "";
+
+        if (comments.length === 0) {
+            listDiv.innerHTML = "<p style='color: #888; font-style: italic;'>Henüz onaylanmış yorum yok.</p>";
+            return;
+        }
+
+        // En son yapılan yorum en üstte görüksün diye ters çeviriyoruz
+        [...comments].reverse().forEach(c => {
+            const card = document.createElement("div");
+            card.className = "comment-card";
+            card.innerHTML = `
+                <div class="comment-user">${escapeHtml(c.username)}</div>
+                <div class="comment-text">${escapeHtml(c.text)}</div>
+            `;
+            listDiv.appendChild(card);
+        });
+    }
+
+    function updateBannedInfo() {
+        const bannedInfoDiv = document.getElementById("bannedListInfo");
+        if (bannedUsers.length > 0) {
+            bannedInfoDiv.innerText = "Engellenen Kullanıcılar: " + bannedUsers.join(", ");
+        } else {
+            bannedInfoDiv.innerText = "Engellenen Kullanıcılar: Yok";
+        }
+    }
+
+    // XSS açıklarına karşı HTML karakterlerini koruma altına alma
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#039;");
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arthur Schopenhauer</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #d4af37; /* Klasik altın / felsefi sarı tonu */
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 220px; /* Sağ alttaki yorum kutusu ile ana içerik çakışmasın diye */
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Dikey Küçük Dikdörtgen Fotoğraf Alanı */
+        .profile-img-container {
+            width: 180px;
+            height: 230px;
+            margin: 0 auto 25px auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.25);
+        }
+
+        .profile-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 2.3rem;
+            color: var(--accent-color);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .content {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .quote {
+            background-color: rgba(212, 175, 55, 0.05);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #fff;
+        }
+
+        /* Tıklanabilir Eserler Butonu / Alanı */
+        .toggle-btn {
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+
+        /* Gizli / Açılır Eserler Listesi */
+        .books-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, margin-top 0.3s ease;
+        }
+
+        .books-container.active {
+            max-height: 500px; 
+            margin-top: 20px;
+        }
+
+        .books-list {
+            list-style: none;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .books-list li {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .books-list li:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .book-title {
+            font-weight: 600;
+        }
+
+        .book-year {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Sağ Alt Küçük Yorum Kutusu */
+        .comment-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .comment-widget h3 {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .comment-form input,
+        .comment-form textarea {
+            width: 100%;
+            background-color: #121212;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .comment-form input:focus,
+        .comment-form textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        .comment-form textarea {
+            resize: none;
+            height: 50px;
+        }
+
+        .comment-form button {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: #121212;
+            border: none;
+            padding: 7px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .comment-form button:hover {
+            background-color: #e5be3b;
+        }
+
+        .comments-list {
+            max-height: 80px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border-top: 1px solid #333;
+            padding-top: 8px;
+        }
+
+        .comment-item {
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .comment-item strong {
+            color: var(--accent-color);
+            display: block;
+        }
+
+        /* Uyarı mesajı tasarımı */
+        #alertMsg {
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+            color: #ff6b6b;
+            display: none;
+        }
+
+        /* Mobil Uyum */
+        @media (max-width: 600px) {
+            .comment-widget {
+                position: static;
+                width: 100%;
+                margin-top: 30px;
+            }
+            body {
+                padding-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Arthur Schopenhauer Dikey Küçük Dikdörtgen Fotoğrafı -->
+        <div class="profile-img-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/bc/Arthur_Schopenhauer_by_J_Sch%C3%A4fer%2C_1859b.jpg?utm_source=tr.wikipedia.org&utm_campaign=imageinfo&utm_content=original" alt="Arthur Schopenhauer">
+        </div>
+
+        <!-- Biyografi / Tanıtım Bölümü -->
+        <div class="header">
+            <h1>Arthur Schopenhauer</h1>
+            <p>1788 – 1860 | Alman Filozof ve Yazar</p>
+        </div>
+
+        <div class="content">
+            <p>
+                Arthur Schopenhauer; Alman idealizminin son dönemine karşı çıkarak irrasyonalist ve pesimist felsefi akımın temellerini atan en önemli filozoflardandır. Evrenin özünün akıl değil, kör ve tatminsiz bir "İstend" (İrade) olduğunu savunmuş; estetik ve sanatın bu iradenin acısından geçici bir kurtuluş sağladığını öne sürmüştür.
+            </p>
+
+            <div class="quote">
+                "Müzik, diğer tüm sanatların üstündedir; çünkü o, tasavvurların değil, doğrudan iradenin kendisinin bir ifadesidir."
+            </div>
+        </div>
+
+        <!-- Tıklanabilir Eserler Başlığı / Butonu -->
+        <button class="toggle-btn" id="toggleBooksBtn">
+            <span>Önemli Eserleri</span>
+            <span class="arrow" id="arrow">▼</span>
+        </button>
+
+        <!-- Aynı Sayfada Açılacak Eser Listesi -->
+        <div class="books-container" id="booksContainer">
+            <ul class="books-list">
+                <li>
+                    <span class="book-title">Görme ve Renkler Üzerine</span>
+                    <span class="book-year">1816</span>
+                </li>
+                <li>
+                    <span class="book-title">İstem ve Tasavvur Olarak Dünya</span>
+                    <span class="book-year">1818</span>
+                </li>
+                <li>
+                    <span class="book-title">Doğadaki İrade Üzerine</span>
+                    <span class="book-year">1836</span>
+                </li>
+                <li>
+                    <span class="book-title">Ahlakın İki Temel Problemi</span>
+                    <span class="book-year">1841</span>
+                </li>
+                <li>
+                    <span class="book-title">Parerga ve Paralipomena</span>
+                    <span class="book-year">1851</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Sağ Alt Köşedeki Küçük Yorum Kutusu -->
+    <div class="comment-widget">
+        <h3>💬 Yorum Bırak</h3>
+        <div id="alertMsg"></div>
+        <form class="comment-form" id="commentForm">
+            <input type="text" id="author" placeholder="Adınız" required>
+            <textarea id="commentText" placeholder="Yorumunuz..." required></textarea>
+            <button type="submit">Gönder</button>
+        </form>
+        <div class="comments-list" id="commentsList">
+            <!-- Eklenen Yorumlar Burada Gösterilecek -->
+        </div>
+    </div>
+
+    <!-- JavaScript İşlevleri -->
+    <script>
+        // 1. Eserler Butonu Tıklama Mantığı
+        const toggleBtn = document.getElementById('toggleBooksBtn');
+        const booksContainer = document.getElementById('booksContainer');
+        const arrow = document.getElementById('arrow');
+
+        toggleBtn.addEventListener('click', () => {
+            booksContainer.classList.toggle('active');
+            if (booksContainer.classList.contains('active')) {
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // 2. Küfür / Argo Kara Listesi
+        const badWords = [
+            "küfür1", "argo1", "aptal", "salak", "mal", "gerizekalı", 
+            "nefret", "pislik", "hain", "orospu", "amk", "aq", "sik", "anan", 
+            "yarrak", "pezevenk", "kahpe", "iftira"
+        ];
+
+        // Tarayıcı hafızasından (localStorage) engellenen kullanıcıları yükle
+        let bannedUsers = JSON.parse(localStorage.getItem("bannedUsers")) || [];
+
+        // 3. Yorum Gönderme ve Filtreleme Mantığı
+        const commentForm = document.getElementById('commentForm');
+        const commentsList = document.getElementById('commentsList');
+        const alertMsg = document.getElementById('alertMsg');
+
+        commentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const authorInput = document.getElementById('author');
+            const commentInput = document.getElementById('commentText');
+
+            const author = authorInput.value.trim();
+            const comment = commentInput.value.trim();
+
+            alertMsg.style.display = 'none';
+            alertMsg.innerText = '';
+
+            if (!author || !comment) return;
+
+            // Kullanıcı engelli mi kontrol et
+            if (bannedUsers.includes(author)) {
+                alertMsg.style.display = 'block';
+                alertMsg.innerText = "Bu kullanıcı adı engellenmiştir, yorum yapamazsınız.";
+                return;
+            }
+
+            // Gelişmiş Filtreleme (Boşlukları, noktaları, yıldızları temizleyerek bypass'ı önler)
+            const normalizedText = comment.toLocaleLowerCase('tr-TR')
+                                          .replace(/[\s\.\-_,\*]/g, '');
+
+            let containsBadWord = false;
+            for (let word of badWords) {
+                const normalizedBadWord = word.toLocaleLowerCase('tr-TR').replace(/[\s\.\-_,\*]/g, '');
+                if (normalizedText.includes(normalizedBadWord)) {
+                    containsBadWord = true;
+                    break;
+                }
+            }
+
+            // Uygunsuz kelime yakalandıysa:
+            if (containsBadWord) {
+                if (!bannedUsers.includes(author)) {
+                    bannedUsers.push(author);
+                    localStorage.setItem("bannedUsers", JSON.stringify(bannedUsers));
+                }
+
+                alertMsg.style.display = 'block';
+                alertMsg.innerText = "Uygunsuz içerik tespit edildi! Yorumunuz silindi ve '" + author + "' engellendi.";
+                commentInput.value = '';
+                return;
+            }
+
+            // Her şey temizse yorumu ekrana ekle
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.innerHTML = `<strong>${escapeHtml(author)}:</strong> ${escapeHtml(comment)}`;
+
+            commentsList.prepend(commentDiv);
+
+            authorInput.value = '';
+            commentInput.value = '';
+        });
+
+        // XSS saldırılarına karşı güvenli HTML karakter dönüştürücü
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

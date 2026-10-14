@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caravaggio - Biografi & Eserler</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        /* Üst Menü */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            background: #050505;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            color: #d4af37;
+            text-decoration: none;
+            font-style: italic;
+        }
+
+        .back-btn {
+            color: #aaa;
+            text-decoration: none;
+            font-style: italic;
+            transition: color 0.3s;
+        }
+
+        .back-btn:hover { color: #d4af37; }
+
+        /* İçerik Alanı */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: #d4af37;
+            font-style: italic;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        .bio-text {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 50px;
+            text-align: justify;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: #d4af37;
+            font-style: italic;
+            margin-bottom: 25px;
+        }
+
+        /* Eserler Galerisi */
+        .artworks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .artwork-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .artwork-item img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border: 4px solid #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .artwork-title {
+            font-size: 1rem;
+            color: #d4af37;
+            font-style: italic;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">SANAT & FELSEFE</a>
+        <a href="sanat.html" class="back-btn">← Sanatçılara Dön</a>
+    </header>
+
+    <div class="container">
+        <h1>Michelangelo Merisi da Caravaggio</h1>
+        
+        <p class="bio-text">
+            Caravaggio (1571–1610), Barok sanat akımının en önemli ve sıra dışı İtalyan ressamlarından biridir. Işık ve gölgeyi dramatik bir biçimde karşılaştırarak oluşturduğu "Chiaroscuro" tekniğiyle tanınır. Eserlerinde dini ve mitolojik temaları son derece gerçekçi ve zaman zaman sarsıcı bir insan doğallığıyla ele almıştır.
+        </p>
+
+        <h2>Öne Çıkan Eserleri</h2>
+
+        <div class="artworks-grid">
+            <div class="artwork-item">
+                <a href="caravaggioresim.html">
+                   <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Caravaggio_-_Medusa_-_Google_Art_Project.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original" alt="Medusa" class="flash-img"  style="cursor: pointer;">
+                </a>
+                <p class="artwork-title">Medusa (1597)</p>
+            </div>
+
+            <div class="artwork-item">
+                <a href="narcissus.html">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/Narcissus-Caravaggio_%281594-96%29_edited.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original" alt="Narcissus">
+                </a>
+                 <p class="artwork-title">Narcissus (1597)</p>
+            </div>
+
+            <div class="artwork-item">
+                <a href="matta.html">
+                   <img src="https://upload.wikimedia.org/wikipedia/commons/5/58/Caravaggio_-_La_inspiraci%C3%B3n_de_San_Mateo_%28San_Luigi_dei_Francesi%2C_Roma%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=original" alt="Aziz Matta'ya Çağrı ">
+                </a>
+                <p class="artwork-title">Aziz Matta'ya Çağrı (1602)</p>
+            </div>
+        </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- JavaScript Kaydetme ve Gösterme Kodları -->
+<script>
+function opencaravaggioresimPage() {
+    window.location.href = "caravaggioresim.html"; 
+}
+// Sayfa yüklendiğinde hafızadaki yorumları getir
+document.addEventListener("DOMContentLoaded", function() {
+    loadComments();
+});
+
+// Yorum Listesini Aç/Kapat
+function toggleComments(btn) {
+    const list = btn.parentElement.querySelector('.comments-list');
+    if (list.style.display === "none") {
+        list.style.display = "block";
+    } else {
+        list.style.display = "none";
+    }
+}
+
+// Yeni Yorum Ekleme ve Hafızaya Kaydetme
+function addComment(btn) {
+    const section = btn.closest('.comment-section');
+    const nameInput = section.querySelector('.user-name-input');
+    const textInput = section.querySelector('.comment-input');
+
+    const name = nameInput.value.trim() || "Anonim";
+    const text = textInput.value.trim();
+
+    if (!text) {
+        alert("Lütfen bir yorum yazın!");
+        return;
+    }
+
+    const newComment = { name: name, text: text };
+
+    // Yerel hafızaya kaydet
+    let comments = JSON.parse(localStorage.getItem("artist_comments")) || [];
+    comments.push(newComment);
+    localStorage.setItem("artist_comments", JSON.stringify(comments));
+
+    // Input alanlarını temizle ve listeyi yenile
+    textInput.value = "";
+    loadComments();
+
+    // Yorum listesini görünür yap
+    section.querySelector('.comments-list').style.display = "block";
+}
+
+// Kayıtlı Yorumları Listeleme
+function loadComments() {
+    const commentsList = document.querySelector('.comments-list');
+    const countSpan = document.querySelector('.comment-count');
+    if (!commentsList) return;
+
+    let comments = JSON.parse(localStorage.getItem("artist_comments")) || [];
+    countSpan.textContent = comments.length;
+
+    commentsList.innerHTML = "";
+
+    if (comments.length === 0) {
+        commentsList.innerHTML = '<div style="font-size: 0.75rem; color: #555; text-align: center;">Henüz yorum yok.</div>';
+        return;
+    }
+
+    comments.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'comment-item';
+        item.innerHTML = `<span class="comment-author">${escapeHtml(c.name)}</span><span class="comment-text">${escapeHtml(c.text)}</span>`;
+        commentsList.appendChild(item);
+    });
+}
+
+// HTML Karakter Temizleme (Güvenlik İçin)
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+</script>
+</body>
+</html>
